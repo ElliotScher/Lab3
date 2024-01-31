@@ -1,0 +1,18 @@
+{
+	"extension": {
+		"version": "0.5.0",
+		"json": 2
+	},
+	"project": {
+		"name": "Lab3",
+		"description": "",
+		"creationDate": "1/31/2024, 7:59:50 AM",
+		"platform": "V5",
+		"language": "python",
+		"slot": 1,
+		"sdkVersion": "V5_1_0_1_15",
+		"python": {
+			"main": "src/main.py"
+		}
+	}
+}
