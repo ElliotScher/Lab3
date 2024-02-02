@@ -14,21 +14,21 @@ from vex import *
 brain = Brain()
 
 # Define vision signatures
-LIME = Signature(1, -6709, -5251, -5980, -3811, -2963, -3387, 3.6, 0)
+LIME = Signature(1, -6709, -5251, -5980, -3811, -2963, -3387, 2.5, 0)
 LEMON = Signature(2, 1351, 2689, 2020, -3715, -3343, -3529, 2.5, 0)
 TANGERINE = Signature(3, 2105, 7635, 4870, -2561, -2059, -2310, 2.5, 0)
 GRAPEFRUIT = Signature(4, 2871, 6991, 4931, 1081, 1531, 1306, 2.5, 0)
 
 vision = Vision(Ports.PORT20, 82, LIME, LEMON, TANGERINE, GRAPEFRUIT)
 
-def getSignatureName(id):
-    if id == 1:
+def getSignatureName(signature: Signature):
+    if signature == LIME:
         return "LIME"
-    elif id == 2:
+    elif signature == LEMON:
         return "LEMON"
-    elif id == 3:
+    elif signature == TANGERINE:
         return "TANGERINE"
-    elif id == 4:
+    elif signature == GRAPEFRUIT:
         return "GRAPEFRUIT"
     else:
         return "ERROR"
@@ -39,19 +39,24 @@ FRUIT_HEIGHT_IN = 3
 CALIBRATION_DISTANCE_IN = 12
 CALIBRATION_HEIGHT_PX = 64
 
-def findSignatureDistance(height):
+def findSignatureDistance(height: float):
     return (FRUIT_HEIGHT_IN / 2) / math.atan(math.tan((FRUIT_HEIGHT_IN / 2) / CALIBRATION_DISTANCE_IN) * height / CALIBRATION_HEIGHT_PX)
 
 X_FOV = 61
 
-def findXOffsetDegrees(x):
-    return (x - 320) / 640 * X_FOV
+def findXOffsetDegrees(x: float):
+    return (160 - x) / 320 * X_FOV
+
+def printSnapshot(signature: Signature):
+    objects = vision.take_snapshot(signature)  
+    if objects:
+        print("sig: " + getSignatureName(signature), "deg: " + str(findXOffsetDegrees(vision.largest_object().centerX)), "dist: " + str(findSignatureDistance(vision.largest_object().height)))  
+    else:
+        print("No " + getSignatureName(signature))
+    wait(20)
 
 while True:
-    objects = vision.take_snapshot(LIME)  
-    if objects:
-        print("sig: LIME", "deg: " + str(findXOffsetDegrees(vision.largest_object().centerX)), "dist: " + str(findSignatureDistance(vision.largest_object().height)))   
-    else:
-        print("No object")
-
-    wait(50)
+    printSnapshot(LIME)
+    # printSnapshot(LEMON)
+    # printSnapshot(TANGERINE)
+    # printSnapshot(GRAPEFRUIT)
