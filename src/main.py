@@ -13,11 +13,13 @@ from vex import *
 # Brain should be defined by default
 brain = Brain()
 
+SIGNATURE_SELECTIVITY = 2.5
+
 # Define vision signatures
-LIME = Signature(1, -6709, -5251, -5980, -3811, -2963, -3387, 2.5, 0)
-LEMON = Signature(2, 1351, 2689, 2020, -3715, -3343, -3529, 2.5, 0)
-TANGERINE = Signature(3, 2105, 7635, 4870, -2561, -2059, -2310, 2.5, 0)
-GRAPEFRUIT = Signature(4, 2871, 6991, 4931, 1081, 1531, 1306, 2.5, 0)
+LIME = Signature(1, -6229, -5727, -5978, -4233, -3815, -4024, SIGNATURE_SELECTIVITY, 0)
+LEMON = Signature(2, 1379, 3121, 2250, -3899, -3599, -3749, SIGNATURE_SELECTIVITY, 0)
+TANGERINE = Signature(3, 3235, 7503, 5369, -2769, -2331, -2550, SIGNATURE_SELECTIVITY, 0)
+GRAPEFRUIT = Signature(4, 5335, 7573, 6454, 941, 1263, 1102, SIGNATURE_SELECTIVITY, 0)
 
 vision = Vision(Ports.PORT20, 82, LIME, LEMON, TANGERINE, GRAPEFRUIT)
 
