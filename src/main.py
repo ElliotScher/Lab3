@@ -13,15 +13,15 @@ from vex import *
 # Brain should be defined by default
 brain = Brain()
 
-SIGNATURE_SELECTIVITY = 2.5
+SIGNATURE_SELECTIVITY = 4.5
 
 # Define vision signatures
-LIME = Signature(1, -6229, -5727, -5978, -4233, -3815, -4024, SIGNATURE_SELECTIVITY, 0)
-LEMON = Signature(2, 1379, 3121, 2250, -3899, -3599, -3749, SIGNATURE_SELECTIVITY, 0)
-TANGERINE = Signature(3, 3235, 7503, 5369, -2769, -2331, -2550, SIGNATURE_SELECTIVITY, 0)
-GRAPEFRUIT = Signature(4, 5335, 7573, 6454, 941, 1263, 1102, SIGNATURE_SELECTIVITY, 0)
+LIME = Signature (1, -5461, -4635, -5048, -3641, -3071, -3356, SIGNATURE_SELECTIVITY, 0)
+LEMON = Signature (2, -49, 151, 51, -3407, -2521, -2964, SIGNATURE_SELECTIVITY, 0)
+TANGERINE = Signature (3, 1121, 3095, 2108, -2765, -2405, -2585, SIGNATURE_SELECTIVITY, 0)
+GRAPEFRUIT = Signature (4, 2469, 4465, 3467, 1111, 1439, 1275, SIGNATURE_SELECTIVITY, 0)
 
-vision = Vision(Ports.PORT20, 82, LIME, LEMON, TANGERINE, GRAPEFRUIT)
+vision = Vision(Ports.PORT20, 50, LIME, LEMON, TANGERINE, GRAPEFRUIT)
 
 def getSignatureName(signature: Signature):
     if signature == LIME:
@@ -58,7 +58,7 @@ def printSnapshot(signature: Signature):
     wait(20)
 
 while True:
-    printSnapshot(LIME)
+    # printSnapshot(LIME)
     # printSnapshot(LEMON)
     # printSnapshot(TANGERINE)
-    # printSnapshot(GRAPEFRUIT)
+    printSnapshot(GRAPEFRUIT)
