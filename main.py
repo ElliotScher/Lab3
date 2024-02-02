@@ -16,17 +16,17 @@ brain=Brain()
 button5 = Bumper(brain.three_wire_port.e)
 
 # Defining color signatures
-LIME = Signature(1, -6709, -5251, -5980, -3811, -2963, -3387, 3.6, 0)
-LEMON = Signature(2, 1351, 2689, 2020, -3715, -3343, -3529, 2.5, 0)
-TANGERINE = Signature(3, 2105, 7635, 4870, -2561, -2059, -2310, 2.5, 0)
-GRAPEFRUIT = Signature(4, 2871, 6991, 4931, 1081, 1531, 1306, 2.5, 0)
+LIME = Signature(1, -6229, -5727, -5978, -4233, -3815, -4024, 2.5, 0)
+LEMON = Signature(2, 1379, 3121, 2250, -3899, -3599, -3749, 2.5, 0)
+TANGERINE = Signature(3, 3235, 7503, 5369, -2769, -2331, -2550, 2.5, 0)
+GRAPEFRUIT = Signature(4, 5335, 7573, 6454, 941, 1263, 1102, 2.5, 0)
 
 # Defining camera and colors to search for
 Vision3 = Vision (Ports.PORT20, 82, TANGERINE, LIME, LEMON, GRAPEFRUIT)
 
 brain.screen.print("Hello V5")
 
-def getSignatureName(signature: Signature):
+def signatureNameGet(signature: Signature):
     if signature == LIME:
         return "LIME"
     elif signature == LEMON:
@@ -38,13 +38,13 @@ def getSignatureName(signature: Signature):
     else:
         return "ERROR"
 
-def printSnapshot(signature: Signature):
-    while True:
-     objects = Vision3.take_snapshot(TANGERINE)
+def snapshotPrint(signature: Signature):
+     objects = Vision3.take_snapshot(signature)
      if objects:
-        print(getSignatureName(signature))
+        print(signatureNameGet(signature))
         wait(20)
 
-printSnapshot(TANGERINE)
+while True:
+    snapshotPrint(TANGERINE)
 
 
