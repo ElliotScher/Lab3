@@ -111,8 +111,6 @@ def snapshotState():
     rightMotor.spin(REVERSE, 30, RPM)
     if (objects):
         targetHeading = findXOffsetDegrees(vision.largest_object().centerX) + imu.heading()
-        targetDistance = findSignatureDistanceInches()
-        print(targetDistance)
         leftMotor.stop()
         rightMotor.stop()
         state = 2
@@ -120,6 +118,7 @@ def snapshotState():
 def centeringState():
     global state
     global prevError
+    global targetDistance
 
     # dimensional analysis to turn robot rad/sec into wheel rpm
     rpm = (ROTATION_SPEED_RAD_PER_SEC * WHEEL_BASE_IN * 60) / (2 * math.pi)
@@ -130,8 +129,6 @@ def centeringState():
     #     error -= 360
     # elif error < -180:
     #     error += 360
-
-    print(error)
 
     # change in error per second
     rate = (error - prevError) / 0.2
@@ -149,12 +146,14 @@ def centeringState():
     if (abs(error) < 0.25 and abs(rate) < 1):
         leftMotor.stop()
         rightMotor.stop()
+        targetDistance = findSignatureDistanceInches()
+        print(targetDistance)
         state = 3
 
 def drivingState():
     global state
-    leftMotor.spin_for(FORWARD, distanceToTurns(targetDistance), TURNS, 30 * GEAR_RATIO, RPM, False)
-    rightMotor.spin_for(FORWARD, distanceToTurns(targetDistance), TURNS, 30 * GEAR_RATIO, RPM, False)
+    leftMotor.spin_for(FORWARD, distanceToTurns(5), TURNS, 30 * GEAR_RATIO, RPM, False)
+    rightMotor.spin_for(FORWARD, distanceToTurns(5), TURNS, 30 * GEAR_RATIO, RPM, False)
     state = 4
 
 
