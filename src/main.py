@@ -54,6 +54,31 @@ CALIBRATION_HEIGHT_PX = 64
 
 GEAR_RATIO = 60.0/12.0
 
+WHEEL_DIAMETER_IN = 4
+WHEEL_BASE_IN = 11.625
+GEAR_RATIO = 5
+
+ROTATION_SPEED_RAD_PER_SEC = math.pi
+TARGET_HEADING = 180
+TURN_KP = 1
+TURN_KD = 2.9375
+
+
+prevError = 0
+
+state = 0
+
+
+imu.set_turn_type(TurnType.LEFT)
+imu.calibrate()
+
+while imu.is_calibrating():
+    pass
+imu.reset_heading()
+
+
+print("IMU CALIBRATED")
+
 def distanceToTurns(distance):
     return distance * GEAR_RATIO / (4 * pi)
 
@@ -65,15 +90,6 @@ X_FOV = 61
 def findXOffsetDegrees(x: float):
     return (160 - x) / 320 * X_FOV
 
-def printSnapshot(signature: Signature):
-    objects = vision.take_snapshot(signature)  
-    if objects:
-        print("sig: " + getSignatureName(signature), "deg: " + str(findXOffsetDegrees(vision.largest_object().centerX)), "dist: " + str(findSignatureDistance(vision.largest_object().height)))  
-    else:
-        print("No " + getSignatureName(signature))
-    wait(20)
-
-state = 0
 targetHeading = 0
 targetDistance = 0
 
@@ -95,43 +111,16 @@ def snapshotState():
     rightMotor.spin(REVERSE, 30, RPM)
     if (objects):
         xoffset = findXOffsetDegrees(vision.largest_object().centerX)
-        if imu.heading() + xoffset >= 360:
-            targetHeading = (imu.heading() + xoffset) - 360
-        else:
-            targetHeading = (imu.heading() + xoffset)
+        if (imu.heading() + xoffset) > 180:
+            targetHeading = imu.heading() - xoffset - 360
+        elif (imu.heading() + xoffset) < 180:
+            targetHeading = imu.heading() - xoffset + 360
         leftMotor.stop()
         rightMotor.stop()
         state = 2
 
 def centeringState():
-    global targetHeading
-    global state
-    KP = 3
-    error = (targetHeading - imu.heading())
-    if abs(error) < 0.5:
-        leftMotor.stop()
-        rightMotor.stop()
-        state = 3
-    else:
-        if error > 180:
-            error -= 360
-        elif error < -180:
-            error += 360
-        effort = error * KP
-        print(effort)
-        leftMotor.spin(FORWARD, effort, RPM)
-        rightMotor.spin(REVERSE, effort, RPM)
-
-def drivingState():
-    global targetDistance
-    global state
-    leftMotor.spin_for(FORWARD, distanceToTurns(targetDistance), TURNS, 5, RPM, False)
-    rightMotor.spin_for(FORWARD, distanceToTurns(targetDistance), TURNS, 5, RPM, True)
-    state = 4
-
-def armState():
-    global state
-    armMotor.spin_for(FORWARD, 45 * GEAR_RATIO, DEGREES, 5, RPM)
+    pass
 
 while True:
     if state == 0:
@@ -139,10 +128,4 @@ while True:
     if state == 1:
         snapshotState()
     if state == 2:
-        print(targetHeading)
-        print(imu.heading())
         centeringState()
-    if state == 3:
-        drivingState()
-    if state == 4:
-        armState()
