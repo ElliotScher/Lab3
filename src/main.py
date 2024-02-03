@@ -59,9 +59,8 @@ WHEEL_BASE_IN = 11.625
 GEAR_RATIO = 5
 
 ROTATION_SPEED_RAD_PER_SEC = math.pi
-TARGET_HEADING = 180
 TURN_KP = 1
-TURN_KD = 2.9375
+TURN_KD = 1
 
 
 prevError = 0
@@ -82,8 +81,8 @@ print("IMU CALIBRATED")
 def distanceToTurns(distance):
     return distance * GEAR_RATIO / (4 * pi)
 
-def findSignatureDistance(height: float):
-    return (FRUIT_HEIGHT_IN / 2) / math.atan(math.tan((FRUIT_HEIGHT_IN / 2) / CALIBRATION_DISTANCE_IN) * height / CALIBRATION_HEIGHT_PX)
+def findSignatureDistanceInches():
+    return (FRUIT_HEIGHT_IN / 2) / math.atan(math.tan((FRUIT_HEIGHT_IN / 2) / CALIBRATION_DISTANCE_IN) * vision.largest_object().height / CALIBRATION_HEIGHT_PX)
 
 X_FOV = 61
 
@@ -106,21 +105,59 @@ def idleState():
 def snapshotState():
     global targetHeading
     global state
+    global targetDistance
     objects = vision.take_snapshot(LIME)
     leftMotor.spin(FORWARD, 30, RPM)
     rightMotor.spin(REVERSE, 30, RPM)
     if (objects):
-        xoffset = findXOffsetDegrees(vision.largest_object().centerX)
-        if (imu.heading() + xoffset) > 180:
-            targetHeading = imu.heading() - xoffset - 360
-        elif (imu.heading() + xoffset) < 180:
-            targetHeading = imu.heading() - xoffset + 360
+        targetHeading = findXOffsetDegrees(vision.largest_object().centerX) + imu.heading()
+        targetDistance = findSignatureDistanceInches()
+        print(targetDistance)
         leftMotor.stop()
         rightMotor.stop()
         state = 2
 
 def centeringState():
-    pass
+    global state
+    global prevError
+
+    # dimensional analysis to turn robot rad/sec into wheel rpm
+    rpm = (ROTATION_SPEED_RAD_PER_SEC * WHEEL_BASE_IN * 60) / (2 * math.pi)
+
+    error = targetHeading - imu.heading()
+
+    # if error > 180:
+    #     error -= 360
+    # elif error < -180:
+    #     error += 360
+
+    print(error)
+
+    # change in error per second
+    rate = (error - prevError) / 0.2
+
+    effort = (error * TURN_KP) + (rate * TURN_KD)
+
+    if abs(effort) > rpm:
+        effort = math.copysign(rpm, effort)
+
+    leftMotor.spin(FORWARD, effort * GEAR_RATIO)
+    rightMotor.spin(REVERSE, effort * GEAR_RATIO)
+
+    prevError = error
+    wait(20)
+    if (abs(error) < 0.25 and abs(rate) < 1):
+        leftMotor.stop()
+        rightMotor.stop()
+        state = 3
+
+def drivingState():
+    global state
+    leftMotor.spin_for(FORWARD, distanceToTurns(targetDistance), TURNS, 30 * GEAR_RATIO, RPM, False)
+    rightMotor.spin_for(FORWARD, distanceToTurns(targetDistance), TURNS, 30 * GEAR_RATIO, RPM, False)
+    state = 4
+
+
 
 while True:
     if state == 0:
@@ -129,3 +166,5 @@ while True:
         snapshotState()
     if state == 2:
         centeringState()
+    if state == 3:
+        drivingState()
